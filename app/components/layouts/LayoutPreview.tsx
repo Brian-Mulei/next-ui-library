@@ -9,59 +9,67 @@ interface LayoutPreviewProps {
 }
 
 export default function LayoutPreview({ title, layoutComponent, code }: LayoutPreviewProps) {
-  const [width, setWidth] = useState(1024); // default width
+  const [width, setWidth] = useState(1024);
   const [device, setDevice] = useState<"desktop" | "tablet" | "mobile">("desktop");
 
-  const handleDeviceChange = (device: "desktop" | "tablet" | "mobile") => {
-    setDevice(device);
-    switch (device) {
-      case "desktop":
-        setWidth(1024);
-        break;
-      case "tablet":
-        setWidth(768);
-        break;
-      case "mobile":
-        setWidth(375);
-        break;
-    }
+  const handleDeviceChange = (d: "desktop" | "tablet" | "mobile") => {
+    setDevice(d);
+    if (d === "desktop") setWidth(1024);
+    if (d === "tablet") setWidth(768);
+    if (d === "mobile") setWidth(375);
   };
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen">
-      {/* Sidebar */}
+    <div className="flex min-h-screen bg-gray-100">
+      {/* Layout's own sidebar */}
       <aside className="w-64 bg-gray-900 text-white p-4 hidden md:block">
         <h2 className="text-lg font-bold mb-4">{title}</h2>
         <nav className="space-y-2">
-          <span className="block p-2 rounded hover:bg-gray-800">Link 1</span>
-          <span className="block p-2 rounded hover:bg-gray-800">Link 2</span>
+          <span className="block p-2 rounded hover:bg-gray-800">Menu 1</span>
+          <span className="block p-2 rounded hover:bg-gray-800">Menu 2</span>
         </nav>
       </aside>
 
-      <main className="flex-1 p-4">
+      {/* MAIN CONTENT AREA */}
+      <main className="flex-1 p-6">
         {/* Device Switcher */}
-        <div className="flex gap-2 mb-4 flex-wrap">
+        <div className="flex gap-2 mb-4">
           {["desktop", "tablet", "mobile"].map((d) => (
             <button
               key={d}
+              onClick={() => handleDeviceChange(d as any)}
               className={`px-3 py-1 rounded border ${
-                device === d ? "bg-primary text-white border-primary" : "bg-gray-100 border-gray-300"
+                device === d
+                  ? "bg-primary text-white border-primary"
+                  : "bg-white border-gray-300"
               }`}
-              onClick={() => handleDeviceChange(d as "desktop" | "tablet" | "mobile")}
             >
-              {d.charAt(0).toUpperCase() + d.slice(1)}
+              {d}
             </button>
           ))}
         </div>
 
-        {/* Resizable Preview */}
-        <div className="border rounded shadow p-4 mb-4 bg-gray-50 overflow-auto"
-             style={{ width: `${width}px`, transition: "width 0.3s" }}>
-          {layoutComponent}
+        {/* PREVIEW CANVAS */}
+        <div className="bg-gray-200 p-6 rounded-lg">
+          <div
+            className="bg-white border rounded-xl shadow-lg mx-auto overflow-auto transition-all"
+            style={{ width }}
+          >
+            {/* Inner padding so layout doesn’t touch edges */}
+            <div className="p-4 min-h-[500px]">
+              {layoutComponent}
+            </div>
+          </div>
         </div>
 
-        {/* ComponentDemo for code snippet */}
-        <ComponentDemo preview={layoutComponent} code={code} heading={`${title} Code`} />
+        {/* CODE SECTION */}
+        <div className="mt-6">
+          <ComponentDemo
+            preview={layoutComponent}
+            code={code}
+            heading={`${title} Code`}
+          />
+        </div>
       </main>
     </div>
   );
